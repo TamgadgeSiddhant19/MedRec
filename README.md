@@ -1,39 +1,132 @@
-# React Truffle Box
+# MedRec — Medical Data Access Control (Blockchain + IPFS)
 
-This box comes with everything you need to start using Truffle to write, compile, test, and deploy smart contracts, and interact with them from a React app.
+MedRec is a proof-of-concept platform that demonstrates privacy-preserving medical data storage and access control using blockchain smart contracts and IPFS instead of a traditional centralized database. The project uses Ethereum (Truffle) for smart contracts, IPFS for off-chain file storage, and a React frontend to interact with the contracts.
 
-## Installation
+Key ideas
 
-First ensure you are in an empty directory.
+- Patient medical records (or encrypted pointers to them) are stored on IPFS.
+- Access control (who can read which record) is managed on-chain using Ethereum smart contracts.
+- The Ethereum blockchain stores metadata and access grants; the heavy data lives in IPFS to keep on-chain costs low.
+- The frontend interacts with the smart contract (via web3) and with the IPFS node or gateway to upload/retrieve files.
 
-Run the `unbox` command using 1 of 2 ways.
+Features
 
-```sh
-# Install Truffle globally and run `truffle unbox`
-$ npm install -g truffle
-$ truffle unbox react
-```
+- Register patients and providers
+- Patients grant and revoke access to their records
+- Records are stored on IPFS; only the IPFS CID and metadata are stored on-chain
+- Example React-based UI for uploading files, requesting access, and viewing shared records
 
-```sh
-# Alternatively, run `truffle unbox` via npx
-$ npx truffle unbox react
-```
+Repository structure (typical)
 
-Start the react dev server.
+- contracts/        — Solidity contracts (Truffle)
+- migrations/       — Truffle migration scripts
+- test/             — Contract tests (Mocha/Chai)
+- client/           — React frontend
+- scripts/          — Utility scripts (IPFS helpers, deployment helpers)
+- README.md         — This file
 
-```sh
-$ cd client
-$ npm start
-```
+Prerequisites
 
-From there, follow the instructions on the hosted React app. It will walk you through using Truffle and Ganache to deploy the `SimpleStorage` contract, making calls to it, and sending transactions to change the contract's state.
+- Node.js >= 14
+- npm or yarn
+- Truffle (globally recommended) or use npx
+- Ganache (local blockchain) or an Ethereum testnet (e.g., Goerli) and an RPC provider
+- IPFS: local daemon (go-ipfs) or a remote gateway / provider (Infura, Pinata)
 
-## FAQ
+Getting started — local development (recommended)
 
-- __How do I use this with Ganache (or any other network)?__
+1. Clone the repo
 
-  The Truffle project is set to deploy to Ganache by default. If you'd like to change this, it's as easy as modifying the Truffle config file! Check out [our documentation on adding network configurations](https://trufflesuite.com/docs/truffle/reference/configuration/#networks). From there, you can run `truffle migrate` pointed to another network, restart the React dev server, and see the change take place.
+   git clone https://github.com/TamgadgeSiddhant19/MedRec.git
+   cd MedRec
 
-- __Where can I find more resources?__
+2. Install dependencies
 
-  This Box is a sweet combo of [Truffle](https://trufflesuite.com) and [Webpack](https://webpack.js.org). Either one would be a great place to start!
+   # root (if any)
+   npm install
+
+   # client
+   cd client
+   npm install
+   cd ..
+
+3. Start a local blockchain
+
+   - Install Ganache GUI or use Ganache CLI
+   - Start Ganache and note the RPC URL (usually http://127.0.0.1:7545)
+
+4. Start or configure IPFS
+
+   Option A — Local IPFS
+   - Install go-ipfs and run `ipfs init` then `ipfs daemon`
+
+   Option B — Infura / Pinata
+   - Create an account and get your project credentials
+
+5. Configure environment variables
+
+   Create a `.env` file in the project root or in `client/` with values similar to:
+
+   REACT_APP_WEB3_PROVIDER=http://127.0.0.1:7545
+   REACT_APP_IPFS_API=http://127.0.0.1:5001
+   REACT_APP_CONTRACT_ADDRESS=            # (filled after migration)
+
+   If using Infura/Pinata, set the IPFS API URL and credentials as required by your client code.
+
+6. Compile and migrate smart contracts
+
+   # compile
+   truffle compile
+
+   # migrate to local network (make sure Truffle config points to Ganache)
+   truffle migrate --network development
+
+   After migration, copy the deployed contract address into your `.env` or client config.
+
+7. Start the React client
+
+   cd client
+   npm start
+
+   The app should open in the browser and connect to your local blockchain and IPFS node based on environment configuration.
+
+Security & privacy notes
+
+- Encrypt sensitive files before uploading to IPFS if they must remain confidential. IPFS content is public by default.
+- The smart contract should only store metadata and access control pointers (CIDs), not raw medical data.
+- Consider using off-chain encryption keys shared via secure channels or KMS.
+
+Testing
+
+- Run contract tests with Truffle:
+
+  truffle test
+
+- Add Jest/React testing for the frontend in `client/` as needed.
+
+Deployment
+
+- Deploy smart contracts to a testnet/mainnet using Truffle configuration and an RPC provider (e.g., Infura/Alchemy).
+- Use a production IPFS pinning provider (Pinata/Infura) to ensure long-term availability of CIDs.
+
+Contributing
+
+Contributions are welcome! Please open issues or PRs. Typical contributions:
+
+- Improve access-control logic in contracts
+- Add encryption key management patterns
+- Improve the React UI and UX
+- Add tests and CI
+
+License
+
+Specify a license for the project (e.g., MIT). Add a LICENSE file if you choose a permissive license.
+
+Contact
+
+For questions, open an issue or contact the repository owner.
+
+
+---
+
+(README added/updated by GitHub Copilot)
